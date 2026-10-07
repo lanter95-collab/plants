@@ -64,11 +64,14 @@ button.active { background: #2d5a37; color: white; border-color: #2d5a37; }
 .photo-slot.cover .photo-preview { outline: 2px solid #e0a800; outline-offset: 1px; }
 .photo-star { position: absolute; left: -5px; bottom: -7px; width: 20px; height: 20px; padding: 0; border: 0; background: transparent; font-size: 15px; line-height: 20px; }
 .photo-tip { font-size: 11px; color: #78877b; margin-top: 8px; }
+.fert-red { color: #d11 !important; font-weight: bold; }
+.fert-blue { color: #1a5fd0 !important; font-weight: bold; }
 .card-date { width: 100%; max-width: 100%; font: inherit; font-size: 10px; padding: 1px 0; border: 1px solid #d5e0d6; border-radius: 5px; background: #f7faf7; color: #57705c; text-align: center; min-height: 18px; }
 .photo-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 7px; background: #e5ebe5; display: block; }
 .photo-cloud { width: 50px; height: 50px; padding: 0; font-size: 28px; line-height: 50px; border: 1.5px dashed #9bb5a0; border-radius: 7px; background: #f1f6f2; cursor: pointer; }
 .photo-del { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 1px solid #e4bcbc; background: #fff; color: #a52e2e; font-weight: bold; font-size: 14px; line-height: 18px; }
 .photo-status { font-size: 11px; color: #78877b; margin-top: 4px; }
+.field textarea { overflow: hidden; resize: none; }
 .sun-desc { background: #f1f6f2; color: #3a543f; font-size: 13px; resize: none; }
 .auto-btn { background: #2d5a37; color: white; font-weight: bold; border: none; white-space: nowrap; padding: 0 12px; border-radius: 8px; }
 .small-record-btn{width:25px;height:25px;padding:0;border-radius:50%;background:#2d5a37;color:#fff;border:0;font-size:18px;line-height:25px}.record-row{display:grid;grid-template-columns:32px 120px 1fr 28px;gap:7px;align-items:center;margin-top:8px;padding:7px;background:#f4f7f4;border:1px solid #dce6dd;border-radius:8px}.record-row input{width:100%;font:inherit;padding:7px;border:1px solid #ccd6cc;border-radius:7px}.record-cloud{width:28px;height:28px;padding:0;border:0;background:transparent;font-size:19px;cursor:pointer}.record-thumb{width:10px;height:10px;object-fit:cover;border-radius:2px;display:block}.record-remove{width:26px;height:26px;padding:0;border-radius:50%;color:#a52e2e;border:1px solid #e4bcbc;background:#fff;font-weight:bold}.record-hint{font-size:11px;color:#78877b}
@@ -124,11 +127,10 @@ button.active { background: #2d5a37; color: white; border-color: #2d5a37; }
         <div class="field full">
           <label>植物照片</label>
           <div class="photo-grid" id="photoGrid"></div>
-          <div class="photo-tip">點 ☁️ 新增照片（可多選，至少 6 張）；點照片左下角的 ☆ 可設為圖卡封面（⭐ 為目前封面）。</div>
           <div id="photoStatus" class="photo-status"></div>
           <input id="photo" type="file" accept="image/*" multiple style="display:none">
         </div>
-        <div class="field full"><label>植物名稱 *</label><input id="name" required placeholder="例如：黃金葛"></div>
+        <div class="field full"><label>植物名稱 *</label><input id="name" required></div>
         <div class="field"><label>別名</label><input id="alias"></div>
         <div class="field"><label>學名</label><input id="scientific"></div>
         <div class="field"><label>科別</label><input id="family"></div>
@@ -155,7 +157,7 @@ button.active { background: #2d5a37; color: white; border-color: #2d5a37; }
     </div></div>
 
     <div class="section"><h3>💧 澆水</h3><div class="formgrid">
-      <div class="field"><label>澆水方式</label><input id="waterMethod"></div>
+      <div class="field full"><label>澆水方式</label><textarea id="waterMethod" rows="2"></textarea></div>
     </div></div>
 
     <div class="section"><h3>🪴 土壤／盆器</h3><div class="formgrid">
@@ -168,6 +170,7 @@ button.active { background: #2d5a37; color: white; border-color: #2d5a37; }
       <div class="field"><label>施肥頻率</label><input id="fertFreq"></div>
       <div class="field"><label>使用濃度／倍數</label><input id="fertRatio"></div>
       <div class="field"><label>最後施肥日期</label><input id="lastFert" type="date"></div>
+      <div class="field"><label>提醒施肥天數</label><input id="fertRemind" type="number" min="1" inputmode="numeric" placeholder="例如：10"></div>
       <div class="field full"><label>施肥注意事項</label><textarea id="fertNote" rows="2"></textarea></div>
     </div></div>
 
@@ -207,7 +210,7 @@ let currentPhotos = [];
 let currentCover = 0;
 let currentRecords = [];
 
-const ids = ['name','alias','scientific','family','type','sun','sunHours','temperature','humidity','cold','soilRequirement','envNote','waterMethod','potSize','repot','fertilizer','fertFreq','fertRatio','lastFert','fertNote','flowerSeason','prune','propagate','buyDate','buyPlace','price','location'];
+const ids = ['name','alias','scientific','family','type','sun','sunHours','temperature','humidity','cold','soilRequirement','envNote','waterMethod','potSize','repot','fertilizer','fertFreq','fertRatio','lastFert','fertRemind','fertNote','flowerSeason','prune','propagate','buyDate','buyPlace','price','location'];
 const $ = id => document.getElementById(id);
 
 const IMGBB_API_KEY = '3e63e52100d718b4fe1b7f8be452fd15'; // ← 把你的 imgbb API key 貼在這對引號中間，☁️ 就會上傳到 imgbb
@@ -242,10 +245,14 @@ function setSunValue(v) {
   sel.value = v;
   updateSunDesc();
 }
-function updateSunDesc() { $('sunHours').value = SUN_DESC[$('sun').value] || ''; }
+function updateSunDesc() { $('sunHours').value = SUN_DESC[$('sun').value] || ''; autoGrow($('sunHours')); }
+
+// 多行欄位依內容自動長高，內容不會被隱藏
+function autoGrow(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+function autoGrowAll() { document.querySelectorAll('#plantForm textarea').forEach(autoGrow); }
+document.addEventListener('input', e => { if (e.target.matches && e.target.matches('#plantForm textarea')) autoGrow(e.target); });
 
 // ☁️ 植物照片（可多張，並可選封面）
-const MIN_PHOTO_SLOTS = 6;
 function renderPhoto() {
   if (currentCover >= currentPhotos.length) currentCover = 0;
   let html = currentPhotos.map((src, i) => `
@@ -254,8 +261,7 @@ function renderPhoto() {
       <button type="button" class="photo-del" title="刪除照片" onclick="removePhoto(${i})">−</button>
       <button type="button" class="photo-star" title="設為封面" onclick="setCover(${i})">${i === currentCover ? '⭐' : '☆'}</button>
     </div>`).join('');
-  const clouds = Math.max(MIN_PHOTO_SLOTS, currentPhotos.length + 1) - currentPhotos.length;
-  for (let i = 0; i < clouds; i++) html += `<div class="photo-slot"><button type="button" class="photo-cloud" title="上傳照片" onclick="$('photo').click()">☁️</button></div>`;
+  html += `<div class="photo-slot"><button type="button" class="photo-cloud" title="上傳照片" onclick="$('photo').click()">☁️</button></div>`;
   $('photoGrid').innerHTML = html;
 }
 function removePhoto(i) {
@@ -346,7 +352,7 @@ function render() {
           <div class="card-title">${esc(p.name || '未命名植物')}</div>
           <div class="card-line">☀️ ${esc(p.sun || '未設定')}</div>
           <div class="card-line">購買日期<br>${esc(formatDate(p.buyDate))}</div>
-          <div class="card-line">施肥日期<br><input type="date" class="card-date" value="${esc(p.lastFert || '')}" onclick="event.stopPropagation()" onchange="updateLastFert('${esc(p.id)}', this.value)"></div>
+          <div class="card-line">施肥日期<br><input type="date" class="card-date ${fertStatus(p)}" value="${esc(p.lastFert || '')}" onclick="event.stopPropagation()" onchange="updateLastFert('${esc(p.id)}', this.value)"></div>
         </div>
       </div>
     `).join('');
@@ -372,7 +378,7 @@ function render() {
         <div class="list-name">${esc(p.name)}</div>
         <div class="list-text">${esc(p.sun || '-')}</div>
         <div class="list-text hide-mobile">${esc(p.buyDate || '-')}</div>
-        <div class="list-text">${esc(p.lastFert || '-')}</div>
+        <div class="list-text ${fertStatus(p)}">${esc(p.lastFert || '-')}</div>
         <div class="sort-btns" style="display:flex;flex-direction:row">
           <button class="sort-btn" style="display:block" onclick="moveSortById('${esc(p.id)}', -1, event)">▲</button>
           <button class="sort-btn" style="display:block" onclick="moveSortById('${esc(p.id)}', 1, event)">▼</button>
@@ -381,6 +387,20 @@ function render() {
     `).join('');
     container.innerHTML = html;
   }
+}
+
+// 施肥提醒：到期日前 2 天（含）藍字，到期日當天及之後紅字
+function fertStatus(p) {
+  const n = parseInt(p.fertRemind, 10);
+  const m = String(p.lastFert || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (!m || !(n > 0)) return '';
+  const due = new Date(+m[1], +m[2] - 1, +m[3] + n);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diff = Math.round((due - today) / 86400000);
+  if (diff <= 0) return 'fert-red';
+  if (diff <= 2) return 'fert-blue';
+  return '';
 }
 
 function updateLastFert(id, v) {
@@ -502,6 +522,7 @@ function openPlant(id) {
   $('photoStatus').textContent = '';
   renderPhoto();
   renderPlantRecords();
+  autoGrowAll();
 }
 
 function addPlantRecord(){
